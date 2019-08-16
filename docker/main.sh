@@ -81,6 +81,14 @@ CONFIG_SYS_MMC_ENV_PART=2
 CONFIG_ENV_IS_IN_SPI_FLASH=n
 EOF
 			;;
+		emmc_data)
+			cat >> .config << EOF
+CONFIG_ENV_IS_IN_MMC=y
+CONFIG_SYS_MMC_ENV_DEV=0
+CONFIG_SYS_MMC_ENV_PART=0
+CONFIG_ENV_IS_IN_SPI_FLASH=n
+EOF
+			;;
 		microsd)
 			cat >> .config << EOF
 CONFIG_ENV_IS_IN_MMC=y
@@ -99,6 +107,7 @@ EOF
 			echo "Unknown boot media specified. Valid options:"
 			echo "emmc_boot0 (eMMC boot0 partition)"
 			echo "emmc_boot1 (eMMC boot1 partition)"
+			echo "emmc_data (eMMC main data partition)"
 			echo "microsd (microSD - at 512 byte offset)"
 			echo "spi (SPI Flash)"
 			return 1
@@ -117,6 +126,10 @@ EOF
 			return 1
 			;;
 	esac
+	cat >> .config << EOF
+CONFIG_CMD_BOOTMENU=y
+CONFIG_CMD_SETEXPR=y
+EOF
 	make olddefconfig || return 1
 
 	# build
@@ -131,6 +144,8 @@ EOF
 		BL33=$PWD/build/u-boot/u-boot.bin \
 		all fip \
 		|| return 1
+
+	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
 }
