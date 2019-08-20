@@ -19,9 +19,11 @@ do_init() {
 
 	mkdir build
 	pushd build
-	repo init -u file:///work
+	repo init -u file:///work -b $(cat /work/.git/HEAD | cut -d' ' -f2)
 	status=$?
 	popd
+
+	if [ $status -ne 0 ]; then rm -rf build; fi
 
 	return $status
 }
@@ -151,6 +153,10 @@ EOF
 }
 
 # MAIN
+
+# create identity
+git config --global user.name "SolidRun Docker Tools"
+git config --global user.email "no-reply@solid-run.com"
 
 # check working directory
 if [ ! -d .git ]; then
