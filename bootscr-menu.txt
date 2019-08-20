@@ -1,0 +1,228 @@
+# 
+# Copyright 2019 Josua Mayer <josua@solid-run.com>
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+# expected variables
+# devtype
+# devnum
+# distro_bootpart
+
+# show menu
+setenv bootmenu_choice exit
+setenv bootmenu_0 Reset=reset
+setenv bootmenu_1 Install U-Boot to eMMC boot0=setenv bootmenu_choice emmc_boot0
+setenv bootmenu_2 Install U-Boot to eMMC boot1=setenv bootmenu_choice emmc_boot1
+setenv bootmenu_3 Install U-Boot to eMMC data partition=setenv bootmenu_choice emmc_data
+setenv bootmenu_4 Install U-Boot to microSD=setenv bootmenu_choice microsd
+setenv bootmenu_5 Install U-Boot to SPI Flash=setenv bootmenu_choice spi
+setenv bootmenu_delay -1
+bootmenu
+
+if test "emmc_boot0" = "${bootmenu_choice}"; then
+    # load u-boot from source
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_boot0.bin
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to load U-Boot binary!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # calculate size in blocks of 512 byte
+    setexpr nblocks 0x${filesize} + 0x1ff
+    setexpr nblocks 0x${nblocks} / 0x200
+
+    # select mmc0 (eMMC) - boot0
+    mmc dev 0 1
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to select eMMC boot0!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # write
+    # TODO: prompt?
+    mmc write ${kernel_addr_r} 0 0x${nblocks}
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to write U-Boot!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # clear environment
+    # TODO: prompt?
+    # mmc erase 0xc00 0x80
+
+    echo "Done"
+    sleep 3
+    # TODO: exit properly?
+    source ${scriptaddr}
+fi
+
+if test "emmc_boot1" = "${bootmenu_choice}"; then
+    # load u-boot from source
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_boot1.bin
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to load U-Boot binary!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # calculate size in blocks of 512 byte
+    setexpr nblocks 0x${filesize} + 0x1ff
+    setexpr nblocks 0x${nblocks} / 0x200
+
+    # select mmc0 (eMMC) - boot1
+    mmc dev 0 2
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to select eMMC boot1!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # write
+    # TODO: prompt?
+    mmc write ${kernel_addr_r} 0 0x${nblocks}
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to write U-Boot!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # clear environment
+    # TODO: prompt?
+    # mmc erase 0xc00 0x80
+
+    echo "Done"
+    sleep 3
+    # TODO: exit properly?
+    source ${scriptaddr}
+fi
+
+if test "emmc_data" = "${bootmenu_choice}"; then
+    # load u-boot from source
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_data.bin
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to load U-Boot binary!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # calculate size in blocks of 512 byte
+    setexpr nblocks 0x${filesize} + 0x1ff
+    setexpr nblocks 0x${nblocks} / 0x200
+
+    # select mmc0 (eMMC) - data partition
+    mmc dev 0 0
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to select eMMC data partition!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # write
+    # TODO: prompt?
+    mmc write ${kernel_addr_r} 1 0x${nblocks}
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to write U-Boot!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # clear environment
+    # TODO: prompt?
+    mmc erase 0xc00 0x80
+
+    echo "Done"
+    sleep 3
+    # TODO: exit properly?
+    source ${scriptaddr}
+fi
+
+if test "microsd" = "${bootmenu_choice}"; then
+    # load u-boot from source
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-microsd.bin
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to load U-Boot binary!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # calculate size in blocks of 512 byte
+    setexpr nblocks 0x${filesize} + 0x1ff
+    setexpr nblocks 0x${nblocks} / 0x200
+
+    # select mmc1 (microSD)
+    mmc dev 1
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to select microSD!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # write
+    # TODO: prompt?
+    mmc write ${kernel_addr_r} 1 0x${nblocks}
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to write U-Boot!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # clear environment
+    # TODO: prompt?
+    mmc erase 0xc00 0x80
+
+    echo "Done"
+    sleep 3
+    # TODO: exit properly?
+    source ${scriptaddr}
+fi
+
+if test "spi" = "${bootmenu_choice}"; then
+    # load u-boot from source
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-spi.bin
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to load U-Boot binary!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # probe
+    sf probe
+    if test 0 -ne $?; then
+        echo "ERROR: SPI FLash failed to probe!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # write
+    # TODO: prompt?
+    sf update ${kernel_addr_r} 0 0x${filesize}
+    if test 0 -ne $?; then
+        echo "ERROR: Failed to write U-Boot!"
+        sleep 3
+        source ${scriptaddr}
+    fi
+
+    # clear environment
+    # TODO: prompt?
+    sf erase 0x180000 0x10000
+
+    echo "Done"
+    sleep 3
+    # TODO: exit properly?
+    source ${scriptaddr}
+fi
+
+if test "exit" = "${bootmenu_choice}"; then
+    exit 0
+fi
+
+# restart
+source ${scriptaddr}
