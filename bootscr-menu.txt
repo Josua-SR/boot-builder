@@ -16,17 +16,17 @@
 # show menu
 setenv bootmenu_choice exit
 setenv bootmenu_0 Reset=reset
-setenv bootmenu_1 Install U-Boot to eMMC boot0=setenv bootmenu_choice emmc_boot0
-setenv bootmenu_2 Install U-Boot to eMMC boot1=setenv bootmenu_choice emmc_boot1
-setenv bootmenu_3 Install U-Boot to eMMC data partition=setenv bootmenu_choice emmc_data
-setenv bootmenu_4 Install U-Boot to microSD=setenv bootmenu_choice microsd
-setenv bootmenu_5 Install U-Boot to SPI Flash=setenv bootmenu_choice spi
+setenv bootmenu_1 Install @DEVICE_LONG@ U-Boot to eMMC boot0=setenv bootmenu_choice emmc_boot0
+setenv bootmenu_2 Install @DEVICE_LONG@ U-Boot to eMMC boot1=setenv bootmenu_choice emmc_boot1
+setenv bootmenu_3 Install @DEVICE_LONG@ U-Boot to eMMC data partition=setenv bootmenu_choice emmc_data
+setenv bootmenu_4 Install @DEVICE_LONG@ U-Boot to microSD=setenv bootmenu_choice microsd
+setenv bootmenu_5 Install @DEVICE_LONG@ U-Boot to SPI Flash=setenv bootmenu_choice spi
 setenv bootmenu_delay -1
 bootmenu
 
 if test "emmc_boot0" = "${bootmenu_choice}"; then
     # load u-boot from source
-    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_boot0.bin
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-@DEVICE@-emmc_boot0.bin
     if test 0 -ne $?; then
         echo "ERROR: Failed to load U-Boot binary!"
         sleep 3
@@ -66,7 +66,7 @@ fi
 
 if test "emmc_boot1" = "${bootmenu_choice}"; then
     # load u-boot from source
-    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_boot1.bin
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-@DEVICE@-emmc_boot1.bin
     if test 0 -ne $?; then
         echo "ERROR: Failed to load U-Boot binary!"
         sleep 3
@@ -106,7 +106,7 @@ fi
 
 if test "emmc_data" = "${bootmenu_choice}"; then
     # load u-boot from source
-    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-emmc_data.bin
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-@DEVICE@-emmc_data.bin
     if test 0 -ne $?; then
         echo "ERROR: Failed to load U-Boot binary!"
         sleep 3
@@ -146,7 +146,7 @@ fi
 
 if test "microsd" = "${bootmenu_choice}"; then
     # load u-boot from source
-    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-microsd.bin
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-@DEVICE@-microsd.bin
     if test 0 -ne $?; then
         echo "ERROR: Failed to load U-Boot binary!"
         sleep 3
@@ -186,7 +186,7 @@ fi
 
 if test "spi" = "${bootmenu_choice}"; then
     # load u-boot from source
-    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-cfgt-spi.bin
+    load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} u-boot-@DEVICE@-spi.bin
     if test 0 -ne $?; then
         echo "ERROR: Failed to load U-Boot binary!"
         sleep 3

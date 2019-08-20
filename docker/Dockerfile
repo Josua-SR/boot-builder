@@ -14,6 +14,6 @@ RUN apt-get -y install dosfstools mtools qemu-utils u-boot-tools
 VOLUME /work
 WORKDIR /app
 ADD shflags /app/
-ADD uenv-*.conf /app/
+ADD uenv.conf /app/
 ADD entry.sh /app/
 ENTRYPOINT ["/bin/bash", "/app/entry.sh"]

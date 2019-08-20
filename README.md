@@ -15,3 +15,12 @@ Inside a clone of **this** repository:
     docker run -v "$PWD:/work" 8040ubinstbldr -u $(id -u) -g $(id -g)
 
 As a result **u-boot-installer-cfgt-microsd.img** is created in the current directory.
+
+### Examples:
+- MacchiatoBIN, generic block image (for USB, SATA, mmc)
+
+    docker run -v "$PWD:/work" 8040ubinstbldr -u $(id -u) -g $(id -g) -d mcbin -b generic
+
+- Clearfog GT, microSD image with u-boot embedded
+
+    docker run -v "$PWD:/work" 8040ubinstbldr -u $(id -u) -g $(id -g) -d cfgt -b microsd
