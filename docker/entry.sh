@@ -79,6 +79,8 @@ mkimage -A arm64 -O linux -T script -C none -a 0 -e 0 -d boot.txt boot.scr >/dev
 mcopy -v -i fs.img boot.scr ::
 
 # add u-boot binaries
+mcopy -v -i fs.img /work/u-boot-${DEVICE}-emmc_boot0.bin ::
+mcopy -v -i fs.img /work/u-boot-${DEVICE}-emmc_boot1.bin ::
 mcopy -v -i fs.img /work/u-boot-${DEVICE}-emmc_data.bin ::
 mcopy -v -i fs.img /work/u-boot-${DEVICE}-microsd.bin ::
 mcopy -v -i fs.img /work/u-boot-${DEVICE}-spi.bin ::
