@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<remote name="denx" fetch="https://gitlab.denx.de"/>
+	<remote name="github" fetch="https://github.com"/>
 	<remote name="github-marvell" fetch="https://github.com/MarvellEmbeddedProcessors"/>
 
-	<project path="u-boot" revision="refs/tags/v2019.04" name="u-boot/u-boot.git" remote="denx"/>
+	<project path="u-boot" revision="master-80x0" name="Josua-SR/u-boot.git" remote="github"/>
 	<project path="atf" revision="atf-v1.5-armada-18.12" name="atf-marvell.git" remote="github-marvell"/>
 	<project path="binaries" revision="binaries-marvell-armada-18.12" name="binaries-marvell.git" remote="github-marvell"/>
 	<project path="mv_ddr" revision="mv_ddr-armada-18.12" name="mv-ddr-marvell.git" remote="github-marvell"/>
