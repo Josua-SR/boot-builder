@@ -54,10 +54,6 @@ if test "emmc_boot0" = "${bootmenu_choice}"; then
         source ${scriptaddr}
     fi
 
-    # clear environment
-    # TODO: prompt?
-    # mmc erase 0xc00 0x80
-
     echo "Done"
     sleep 3
     # TODO: exit properly?
@@ -93,10 +89,6 @@ if test "emmc_boot1" = "${bootmenu_choice}"; then
         sleep 3
         source ${scriptaddr}
     fi
-
-    # clear environment
-    # TODO: prompt?
-    # mmc erase 0xc00 0x80
 
     echo "Done"
     sleep 3
@@ -134,10 +126,6 @@ if test "emmc_data" = "${bootmenu_choice}"; then
         source ${scriptaddr}
     fi
 
-    # clear environment
-    # TODO: prompt?
-    mmc erase 0xc00 0x80
-
     echo "Done"
     sleep 3
     # TODO: exit properly?
@@ -174,10 +162,6 @@ if test "microsd" = "${bootmenu_choice}"; then
         source ${scriptaddr}
     fi
 
-    # clear environment
-    # TODO: prompt?
-    mmc erase 0xc00 0x80
-
     echo "Done"
     sleep 3
     # TODO: exit properly?
@@ -209,10 +193,6 @@ if test "spi" = "${bootmenu_choice}"; then
         sleep 3
         source ${scriptaddr}
     fi
-
-    # clear environment
-    # TODO: prompt?
-    sf erase 0x180000 0x10000
 
     echo "Done"
     sleep 3
