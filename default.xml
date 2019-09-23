@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<remote name="denx" fetch="https://gitlab.denx.de"/>
+	<remote name="codeaurora" fetch="https://source.codeaurora.org"/>
 	<remote name="github" fetch="https://github.com"/>
-	<remote name="github-marvell" fetch="https://github.com/MarvellEmbeddedProcessors"/>
 
-	<project path="u-boot" revision="master-80x0" name="Josua-SR/u-boot.git" remote="github"/>
-	<project path="atf" revision="atf-v1.5-armada-18.12" name="atf-marvell.git" remote="github-marvell"/>
-	<project path="binaries" revision="binaries-marvell-armada-18.12" name="binaries-marvell.git" remote="github-marvell"/>
-	<project path="mv_ddr" revision="mv_ddr-armada-18.12" name="mv-ddr-marvell.git" remote="github-marvell"/>
+	<project path="u-boot" revision="v2018.11-solidrun" name="SolidRun/u-boot.git" remote="github"/>
+	<project path="atf" revision="refs/tags/rel_imx_4.19.35_1.0.0" name="external/imx/imx-atf.git" remote="codeaurora"/>
 </manifest>

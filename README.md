@@ -6,25 +6,22 @@ This software uses docker to create a consistent build environment for compiling
 ## Install
 From a clone of **this** repository:
 
-    docker build -t 8040ubbldr docker
+    docker build -t imx8ubbldr docker
 
 ## Usage
 ### Fetch sources
-    docker run -v "$PWD:/work" 8040ubbldr -u $(id -u) -g $(id -g) -- init
-    docker run -v "$PWD:/work" 8040ubbldr -u $(id -u) -g $(id -g) -- sync
+    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- init
+    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- sync
+    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- blobs
 
 ### Build U-Boot
-    docker run -v "$PWD:/work" 8040ubbldr -u $(id -u) -g $(id -g) -- build <options>
+    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build <options>
 
 Options:
 - -d,--device:  Device to build for (default: 'mcbin')
 - -b,--boot:  Boot media to build for (default: 'microsd')
 
 Examples:
-- Clearfog GT, SPI Flash:
+- Hummingboard Pulse, microSD:
 
-      docker run -v "$PWD:/work" 8040ubbldr -u $(id -u) -g $(id -g) -- build -d cfgt -b spi
-
-- MacchiatoBIN, eMMC boot1:
-
-      docker run -v "$PWD:/work" 8040ubbldr -u $(id -u) -g $(id -g) -- build -d mcbin -b emmc_boot1
+      docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
