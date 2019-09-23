@@ -23,7 +23,7 @@ RUN set -e; \
 	:
 
 # install tools
-RUN apt-get -y install bc bison flex libssl-dev repo sudo
+RUN apt-get -y install bc bison flex libssl-dev repo sudo wget
 
 # configure entrypoint
 ADD shflags /shflags

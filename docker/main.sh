@@ -42,89 +42,125 @@ do_sync() {
 	return $status
 }
 
+do_blobs() {
+	if [ -d blobs ]; then
+		echo "Warning: 'blobs' directory exists already."
+		echo "Not fetching!"
+		return 1
+	fi
+
+	# declare version / chksum
+	file=firmware-imx-7.9.bin
+	dir=firmware-imx-7.9
+	sha256sum=30e22c3e24a8025d60c52ed5a479e30fad3ad72127c84a870e69ec34e46ea8c0
+
+	# flags
+	. /shflags
+	DEFINE_boolean 'accept-eula' false "Accept NXP EULA for $file" 'a'
+	FLAGS "$@" || exit 1
+	eval set -- "${FLAGS_ARGV}"
+
+	# fetch if necessary
+	if [ ! -r "$file" ]; then
+		wget -nc https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/$file
+		status=$?
+		if [ $status -ne 0 ]; then
+			echo "Error: Can't download $file!"
+			return $status
+		fi
+	fi
+
+	# verify checksum
+	echo $sha256sum $file | sha256sum -c
+	status=$?
+	if [ $status -ne 0 ]; then
+		echo "Error: $file has wrong checksum, deleting!"
+		echo "Retry or place the file matching sha256 $sha256sum in the working directory."
+		rm -f $file
+		return $status
+	fi
+
+	unpackacceptarg=
+	# accept license?
+	if [ ${FLAGS_accept_eula} -eq ${FLAGS_TRUE} ]; then
+		unpackacceptarg=--auto-accept
+	fi
+
+	# unpack
+	sh $file --force $unpackacceptarg
+	status=$?
+
+	if [ $status -ne 0 ]; then
+		# unpacking is expected to fail if the license has not been accepted
+		if [ ${FLAGS_accept_eula} -eq ${FLAGS_FALSE} ]; then
+			echo "For accepting this EULA autoamtically, rerun with --accept-eula"
+			return 1
+		fi
+
+		# failed for unknown reason
+		return $status
+	fi
+
+	# copy required blobs
+	mkdir blobs
+	cp -v $dir/firmware/ddr/synopsys/lpddr4*.bin blobs/ || return 1
+	cp -v $dir/firmware/hdmi/cadence/signed_hdmi_imx8m.bin blobs/ || return 1
+
+	return 0
+}
+
 do_build() {
 	if [ ! -d build ]; then
 		echo "Error: not initialized, run init first!"
 		return 1
 	fi
-	if [ ! -d build/u-boot ] || [ ! -d build/atf ] || [ ! -d build/binaries ] || [ ! -d build/mv_ddr ]; then
+	if [ ! -d build/u-boot ] || [ ! -d build/atf ]; then
 		echo "Error: Sources not complete, run sync first!"
 		return 1
 	fi
+	if [ ! -d blobs ]; then
+		echo "Error: Binary blobs missing, run blobs first!"
+		return 1
+	fi
+	export BINDIR="$PWD/blobs"
 
 	# flags
 	. /shflags
-	DEFINE_string 'device' mcbin 'Device to build for' 'd'
+	DEFINE_string 'device' hbp 'Device to build for' 'd'
 	DEFINE_string 'boot' microsd 'Boot media to build for' 'b'
 	FLAGS "$@" || exit 1
 	eval set -- "${FLAGS_ARGV}"
 
 	export CROSS_COMPILE=aarch64-linux-gnu-
 
+	# ATF
+	make -C build/atf \
+		PLAT=imx8mq \
+		bl31 \
+		|| return 1
+
+	export BL31="$PWD/build/atf/build/imx8mq/release/bl31.bin"
+
 	# U-Boot
 	pushd build/u-boot
 
 	# configure
-	cp configs/mvebu_mcbin-88f8040_defconfig .config
+	cp configs/imx8mq_hb_defconfig .config
 	case ${FLAGS_boot} in
-		emmc_boot0)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=1
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		emmc_boot1)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=2
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		emmc_data)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=0
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
 		microsd)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=1
-CONFIG_SYS_MMC_ENV_PART=0
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		spi)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=n
-CONFIG_ENV_IS_IN_SPI_FLASH=y
-EOF
 			;;
 		*)
 			echo "Unknown boot media specified. Valid options:"
-			echo "emmc_boot0 (eMMC boot0 partition)"
-			echo "emmc_boot1 (eMMC boot1 partition)"
-			echo "emmc_data (eMMC main data partition)"
 			echo "microsd (microSD - at 512 byte offset)"
-			echo "spi (SPI Flash)"
 			return 1
 			;;
 	esac
 	case ${FLAGS_device} in
-		mcbin)
-			;;
-		cfgt)
-			echo "CONFIG_DEFAULT_DEVICE_TREE=\"armada-8040-clearfog-gt-8k\"" >> .config
+		hbp)
 			;;
 		*)
 			echo "Unknown device specified. Valid options:"
-			echo "- mcbin (MacchiatoBIN)"
-			echo "- cfgt (Clearfog GT 8k)"
+			echo "- hbp (Hummingboard Pulse)"
 			return 1
 			;;
 	esac
@@ -135,19 +171,10 @@ EOF
 	make olddefconfig || return 1
 
 	# build
-	make -j4 all || return 1
+	make flash.bin -j4 || return 1
 	popd
 
-	# ATF
-	make -C build/atf \
-		PLAT=a80x0_mcbin \
-		MV_DDR_PATH=$PWD/build/mv_ddr \
-		SCP_BL2=$PWD/build/binaries/mrvl_scp_bl2.img \
-		BL33=$PWD/build/u-boot/u-boot.bin \
-		all fip \
-		|| return 1
-
-	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
+	cp -v build/u-boot/flash.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
 }
@@ -179,6 +206,10 @@ case $command in
 	;;
 	sync)
 		do_sync
+		exit $?
+	;;
+	blobs)
+		do_blobs $@
 		exit $?
 	;;
 	build)
