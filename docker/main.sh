@@ -135,17 +135,15 @@ do_build() {
 
 	# ATF
 	make -C build/atf \
-		PLAT=imx8mq \
+		PLAT=imx8mm \
 		bl31 \
 		|| return 1
-
-	export BL31="$PWD/build/atf/build/imx8mq/release/bl31.bin"
 
 	# U-Boot
 	pushd build/u-boot
 
 	# configure
-	cp configs/imx8mq_hb_defconfig .config
+	cp configs/imx8mm_solidrun_defconfig .config
 	case ${FLAGS_boot} in
 		microsd)
 			;;
@@ -171,10 +169,25 @@ EOF
 	make olddefconfig || return 1
 
 	# build
-	make flash.bin -j4 || return 1
+	make -j4 || return 1
+
 	popd
 
-	cp -v build/u-boot/flash.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
+	# i.MX Image Builder
+	cp build/atf/build/imx8mm/release/bl31.bin build/imx-mkimage/iMX8M/
+	cp build/u-boot/arch/arm/dts/fsl-imx8mm-solidrun.dtb build/imx-mkimage/iMX8M/
+	cp build/u-boot/spl/u-boot-spl.bin build/imx-mkimage/iMX8M/
+	cp build/u-boot/tools/mkimage build/imx-mkimage/iMX8M/mkimage_uboot
+	cp build/u-boot/u-boot-nodtb.bin build/imx-mkimage/iMX8M/
+	cp blobs/* build/imx-mkimage/iMX8M/
+	pushd build/imx-mkimage
+	#sed "s/\(^dtbs = \).*/\1fsl-imx8mm-solidrun.dtb/;s/\(mkimage\)_uboot/\1_imx8/" soc.mak > Makefile
+	sed -i "s/\(^dtbs = \).*/\1fsl-imx8mm-solidrun.dtb/" iMX8M/soc.mak
+	make clean
+	make SOC=iMX8MM flash_evk
+	popd
+
+	cp -v build/imx-mkimage/iMX8M/flash.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
 }

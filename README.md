@@ -1,21 +1,21 @@
-## Armada 8040 U-Boot Builder
+## i.MX8M Mini U-Boot Builder
 
 ## Description
-This software uses docker to create a consistent build environment for compiling U-Boot images from source code for Armada 8040 based devices.
+This software uses docker to create a consistent build environment for compiling U-Boot images from source code for i.MX8M Mini based devices.
 
 ## Install
 From a clone of **this** repository:
 
-    docker build -t imx8ubbldr docker
+    docker build -t imx8mmubbldr docker
 
 ## Usage
 ### Fetch sources
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- init
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- sync
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- blobs
+    docker run -v "$PWD:/work" imx8mmubbldr -u $(id -u) -g $(id -g) -- init
+    docker run -v "$PWD:/work" imx8mmubbldr -u $(id -u) -g $(id -g) -- sync
+    docker run -v "$PWD:/work" imx8mmubbldr -u $(id -u) -g $(id -g) -- blobs
 
 ### Build U-Boot
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build <options>
+    docker run -v "$PWD:/work" imx8mmubbldr -u $(id -u) -g $(id -g) -- build <options>
 
 Options:
 - -d,--device:  Device to build for (default: 'mcbin')
@@ -24,4 +24,4 @@ Options:
 Examples:
 - Hummingboard Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
+      docker run -v "$PWD:/work" imx8mmubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
