@@ -47,7 +47,7 @@ do_build() {
 		echo "Error: not initialized, run init first!"
 		return 1
 	fi
-	if [ ! -d build/u-boot ] || [ ! -d build/atf ] || [ ! -d build/binaries ] || [ ! -d build/mv_ddr ]; then
+	if [ ! -d build/edk2 ] || [ ! -d build/atf ] || [ ! -d build/binaries ] || [ ! -d build/mv_ddr ]; then
 		echo "Error: Sources not complete, run sync first!"
 		return 1
 	fi
@@ -55,62 +55,29 @@ do_build() {
 	# flags
 	. /shflags
 	DEFINE_string 'device' mcbin 'Device to build for' 'd'
-	DEFINE_string 'boot' microsd 'Boot media to build for' 'b'
+	DEFINE_string 'boot' spi 'Boot media to build for' 'b'
 	FLAGS "$@" || exit 1
 	eval set -- "${FLAGS_ARGV}"
 
 	export CROSS_COMPILE=aarch64-linux-gnu-
 
-	# U-Boot
-	pushd build/u-boot
+	# EDK2
+	pushd build
+	export WORKSPACE=$PWD
+	export PACKAGES_PATH=$PWD/edk2:$PWD/edk2-platforms
+	export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+
+	# TODO: remove this HACK
+	#rm -f edk2-platforms && ln -sv ../edk2-platforms ./
+	#mkdir -p Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64
+	#rm -f Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64/Silicon && ln -sv edk2-platforms/Silicon Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64/Silicon
 
 	# configure
-	cp configs/mvebu_mcbin-88f8040_defconfig .config
 	case ${FLAGS_boot} in
-		emmc_boot0)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=1
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		emmc_boot1)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=2
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		emmc_data)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=0
-CONFIG_SYS_MMC_ENV_PART=0
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
-		microsd)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=y
-CONFIG_SYS_MMC_ENV_DEV=1
-CONFIG_SYS_MMC_ENV_PART=0
-CONFIG_ENV_IS_IN_SPI_FLASH=n
-EOF
-			;;
 		spi)
-			cat >> .config << EOF
-CONFIG_ENV_IS_IN_MMC=n
-CONFIG_ENV_IS_IN_SPI_FLASH=y
-EOF
 			;;
 		*)
 			echo "Unknown boot media specified. Valid options:"
-			echo "emmc_boot0 (eMMC boot0 partition)"
-			echo "emmc_boot1 (eMMC boot1 partition)"
-			echo "emmc_data (eMMC main data partition)"
-			echo "microsd (microSD - at 512 byte offset)"
 			echo "spi (SPI Flash)"
 			return 1
 			;;
@@ -118,24 +85,17 @@ EOF
 	case ${FLAGS_device} in
 		mcbin)
 			;;
-		cfgt)
-			echo "CONFIG_DEFAULT_DEVICE_TREE=\"armada-8040-clearfog-gt-8k\"" >> .config
-			;;
 		*)
 			echo "Unknown device specified. Valid options:"
 			echo "- mcbin (MacchiatoBIN)"
-			echo "- cfgt (Clearfog GT 8k)"
 			return 1
 			;;
 	esac
-	cat >> .config << EOF
-CONFIG_CMD_BOOTMENU=y
-CONFIG_CMD_SETEXPR=y
-EOF
-	make olddefconfig || return 1
 
 	# build
-	make -j4 all || return 1
+	make -C edk2/BaseTools || return 1
+	source edk2/edksetup.sh
+	build -a AARCH64 -b RELEASE -t GCC5 -p Platform/SolidRun/Armada80x0McBin/Armada80x0McBin.dsc -v || return 1
 	popd
 
 	# ATF
@@ -143,11 +103,11 @@ EOF
 		PLAT=a80x0_mcbin \
 		MV_DDR_PATH=$PWD/build/mv_ddr \
 		SCP_BL2=$PWD/build/binaries/mrvl_scp_bl2.img \
-		BL33=$PWD/build/u-boot/u-boot.bin \
+		BL33=$PWD/build/Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/FV/ARMADA_EFI.fd \
 		all fip \
 		|| return 1
 
-	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
+	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin uefi-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
 }

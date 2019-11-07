@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:buster
 
 # configure apt
 ADD sources.list /etc/apt/sources.list
@@ -22,8 +22,12 @@ RUN set -e; \
 	esac; \
 	:
 
+# install build dependencies
+RUN apt-get -y install acpica-tools device-tree-compiler uuid-dev
+RUN apt-get -y install libssl-dev
+
 # install tools
-RUN apt-get -y install bc bison flex libssl-dev repo sudo
+RUN apt-get -y install repo sudo
 
 # configure entrypoint
 ADD shflags /shflags
