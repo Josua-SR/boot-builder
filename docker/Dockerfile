@@ -32,6 +32,5 @@ RUN apt-get -y install repo sudo
 # configure entrypoint
 ADD shflags /shflags
 ADD entry.sh /entry.sh
-ADD main.sh /main.sh
 WORKDIR /work
 ENTRYPOINT ["/bin/bash", "/entry.sh"]
