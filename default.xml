@@ -4,7 +4,7 @@
 	<remote name="github" fetch="https://github.com"/>
 	<remote name="github-marvell" fetch="https://github.com/MarvellEmbeddedProcessors"/>
 
-	<project path="edk2" revision="master" name="tianocore/edk2" remote="github" sync-s="true"/>
+	<project path="edk2" revision="refs/tags/edk2-stable201908" name="tianocore/edk2" remote="github" sync-s="true"/>
 	<project path="edk2-platforms" revision="master" name="tianocore/edk2-platforms" remote="github"/>
 	<project path="atf" revision="atf-v1.5-armada-18.12" name="atf-marvell.git" remote="github-marvell"/>
 	<project path="binaries" revision="binaries-marvell-armada-18.12" name="binaries-marvell.git" remote="github-marvell"/>
