@@ -69,13 +69,8 @@ do_build() {
 	# EDK2
 	pushd build
 	export WORKSPACE=$PWD
-	export PACKAGES_PATH=$PWD/edk2:$PWD/edk2-platforms
+	export PACKAGES_PATH=$PWD/edk2:$PWD/edk2-platforms:$PWD/edk2-non-osi
 	export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
-
-	# TODO: remove this HACK
-	#rm -f edk2-platforms && ln -sv ../edk2-platforms ./
-	#mkdir -p Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64
-	#rm -f Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64/Silicon && ln -sv edk2-platforms/Silicon Build/Armada80x0McBin-AARCH64/RELEASE_GCC5/AARCH64/Silicon
 
 	# configure
 	case ${FLAGS_boot} in
@@ -100,7 +95,7 @@ do_build() {
 	# build
 	make -C edk2/BaseTools || return 1
 	source edk2/edksetup.sh
-	build -a AARCH64 -b RELEASE -t GCC5 -p Platform/SolidRun/Armada80x0McBin/Armada80x0McBin.dsc -v || return 1
+	build -a AARCH64 -b RELEASE -t GCC5 -p Platform/SolidRun/Armada80x0McBin/Armada80x0McBin.dsc -D X64EMU_ENABLE -v || return 1
 	popd
 
 	# ATF
@@ -115,6 +110,12 @@ do_build() {
 	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin uefi-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
+}
+
+# development
+do_shell() {
+	/bin/bash
+	return $?
 }
 
 # MAIN
@@ -148,6 +149,10 @@ case $command in
 	;;
 	build)
 		do_build $@
+		exit $?
+	;;
+	shell)
+		do_shell $@
 		exit $?
 	;;
 	*)
