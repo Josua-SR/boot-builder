@@ -25,4 +25,4 @@ groupadd -g ${FLAGS_gid} build 2>/dev/null || true
 useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
 sudo -u build /usr/bin/env __FORCE__=yes /bin/bash /work/build.sh $@
 
-exit 0
+exit $?
