@@ -756,7 +756,7 @@ _flags_parseGetopt() {
   # properly give user access to non-flag arguments mixed in between flag
   # arguments. Its usage was replaced by FLAGS_ARGV, and it is being kept only
   # for backwards compatibility reasons.
-  FLAGS_ARGC=`_flags_math "$# - 1 - ${_flags_argc_}"`
+  FLAGS_ARGC=`_flags_math "$# - 1 - ${_flags_argc_}"` || true
   export FLAGS_ARGC
 
   # Handle options. note options with values must do an additional shift.

@@ -61,7 +61,7 @@ do_build() {
 	. /shflags
 	DEFINE_string 'device' mcbin 'Device to build for' 'd'
 	DEFINE_string 'boot' spi 'Boot media to build for' 'b'
-	FLAGS "$@" || exit 1
+	FLAGS "$@" || return 1
 	eval set -- "${FLAGS_ARGV}"
 
 	export CROSS_COMPILE=aarch64-linux-gnu-

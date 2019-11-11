@@ -4,11 +4,11 @@ name: armada-8040-uefi
 
 platform:
   os: linux
-  arch: arm64
+  arch: amd64
 
 steps:
   - name: ryver-announce-start
-    image: docker.solid-build.xyz/plugins/slack:latest
+    image: container.solid-build.xyz/drone/plugins/slack:latest
     settings:
       webhook:
         from_secret: ryver_webhook
@@ -18,13 +18,13 @@ steps:
         Start building {{repo.name}}/{{build.branch}} (#{{build.number}})
 
   - name: container
-    image: plugins/docker:linux-arm64
+    image: plugins/docker:linux-amd64
     settings:
       dockerfile: docker/Dockerfile
       context: docker
-      registry: docker.solid-build.xyz
-      repo: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
-      cache_from: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder:latest
+      registry: container.solid-build.xyz
+      repo: container.solid-build.xyz/drone/boot-builder/armada-8040-uefi-builder
+      cache_from: container.solid-build.xyz/drone/boot-builder/armada-8040-uefi-builder:latest
       tags: latest
       username:
         from_secret: docker_username
@@ -32,19 +32,19 @@ steps:
         from_secret: docker_password
 
   - name: init
-    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uefi-builder
     command: ["-u", "0", "-g", "0", "--", "init"]
 
   - name: sync
-    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uefi-builder
     command: ["-u", "0", "-g", "0", "--", "sync"]
 
   - name: build
-    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uefi-builder
     command: ["-u", "0", "-g", "0", "--", "build"]
 
   - name: ryver-announce-success
-    image: docker.solid-build.xyz/plugins/slack:latest
+    image: container.solid-build.xyz/drone/plugins/slack:latest
     settings:
       webhook:
         from_secret: ryver_webhook
@@ -65,7 +65,7 @@ clone:
 
 steps:
   - name: ryver-announce-failure
-    image: docker.solid-build.xyz/plugins/slack:latest
+    image: container.solid-build.xyz/drone/plugins/slack:latest
     settings:
       webhook:
         from_secret: ryver_webhook

@@ -20,9 +20,24 @@ DEFINE_integer 'gid' 100 'Group ID to run as' 'g'
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 
-# drop privileges
-groupadd -g ${FLAGS_gid} build 2>/dev/null || true
-useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
-sudo -u build /usr/bin/env __FORCE__=yes /bin/bash /work/build.sh $@
+# handle drone.io
+if [ "x$CI" = "xtrue" ]; then
+	echo "CI environment detected, linkint workspace to $DRONE_WORKSPACE."
+	cd /
+	rmdir /work
+	ln -sv $DRONE_WORKSPACE /work
+	cd /work
+fi
 
-exit $?
+if [ "x${FLAGS_uid}" != "x0" ]; then
+# drop privileges
+	groupadd -g ${FLAGS_gid} build 2>/dev/null || true
+	useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
+	sudo -u build /usr/bin/env __FORCE__=yes /bin/bash /work/build.sh $@
+	status=$?
+else
+	sudo -u root /usr/bin/env __FORCE__=yes /bin/bash /work/build.sh $@
+	status=$?
+fi
+
+exit $status
