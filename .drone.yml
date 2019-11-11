@@ -1,0 +1,85 @@
+---
+kind: pipeline
+name: armada-8040-uefi
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+  - name: ryver-announce-start
+    image: docker.solid-build.xyz/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-partial-passed.png
+      template: >
+        Start building {{repo.name}}/{{build.branch}} (#{{build.number}})
+
+  - name: container
+    image: plugins/docker:linux-arm64
+    settings:
+      dockerfile: docker/Dockerfile
+      context: docker
+      registry: docker.solid-build.xyz
+      repo: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+      cache_from: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder:latest
+      tags: latest
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+  - name: init
+    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    command: ["-u", "0", "-g", "0", "--", "init"]
+
+  - name: sync
+    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    command: ["-u", "0", "-g", "0", "--", "sync"]
+
+  - name: build
+    image: docker.solid-build.xyz/boot-builder/armada-8040-uefi-builder
+    command: ["-u", "0", "-g", "0", "--", "build"]
+
+  - name: ryver-announce-success
+    image: docker.solid-build.xyz/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-passed.png
+      template: >
+        {{repo.name}}/{{build.branch}} succeeded (#{{build.number}}).
+
+image_pull_secrets:
+- docker_config_json
+
+---
+kind: pipeline
+name: on_failure
+
+clone:
+  disable: true
+
+steps:
+  - name: ryver-announce-failure
+    image: docker.solid-build.xyz/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-failed.png
+      template: >
+        {{repo.name}}/{{build.branch}} failed (#{{build.number}}). :cry:
+
+depends_on:
+- armada-8040-uefi
+
+image_pull_secrets:
+- docker_config_json
+
+trigger:
+  status:
+  - failure
