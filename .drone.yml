@@ -1,0 +1,63 @@
+---
+kind: pipeline
+name: uboot-8040
+
+clone:
+  depth: 1
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: ryver-announce-start
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-partial-passed.png
+      template: >
+        Start building {{repo.name}}/{{build.branch}} (#{{build.number}})
+
+  - name: container
+    image: plugins/docker:linux-amd64
+    settings:
+      dockerfile: docker/Dockerfile
+      context: docker
+      registry: container.solid-build.xyz
+      repo: container.solid-build.xyz/drone/boot-builder/armada-8040-uboot-builder
+      tags: latest
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+  - name: init
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uboot-builder
+    command: [ init ]
+
+  - name: sync
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uboot-builder
+    command: [ sync ]
+
+  - name: build
+    image: container.solid-build.xyz/drone/boot-builder/armada-8040-uboot-builder
+    command: [ build ]
+
+  - name: ryver-announce-state
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-partial-passed.png
+      template: >
+        {{#success build.status}}
+          {{repo.name}}/{{build.branch}} succeeded (#{{build.number}}).
+        {{else}}
+          {{repo.name}}/{{build.branch}} failed (#{{build.number}})!
+        {{/success}}
+
+image_pull_secrets:
+- docker_config_json
