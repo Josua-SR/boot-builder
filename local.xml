@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+<!--
+	<remove-project name="SolidRun/u-boot.git"/>
+	<remove-project name="external/imx/imx-atf.git"/>
+
+	<project path="u-boot" revision="master" name="nobody/u-boot.git" remote="github"/>
+	<project path="atf" revision="master" name="nobody/atf.git" remote="github"/>
+-->
+</manifest>

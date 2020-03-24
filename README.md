@@ -6,16 +6,21 @@ This software uses docker to create a consistent build environment for compiling
 ## Install
 From a clone of **this** repository:
 
-    docker build -t imx8ubbldr docker
+    docker build -t imx8mqubbldr docker
+
+From our container registry:
+
+    docker pull container.solid-build.xyz/bsp/imx8mq-uboot-builder
+    docker tag container.solid-build.xyz/bsp/imx8mq-uboot-builder imx8mqubbldr
 
 ## Usage
 ### Fetch sources
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- init
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- sync
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- blobs
+    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- init
+    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- sync
+    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- blobs
 
 ### Build U-Boot
-    docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build <options>
+    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build <options>
 
 Options:
 - -d,--device:  Device to build for (default: 'mcbin')
@@ -24,4 +29,10 @@ Options:
 Examples:
 - Hummingboard Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8ubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
+      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
+
+### Customize where source code is pulled from
+
+The default manifest used by the repo command can be overriden by customizing the provided *local.xml* and placing it in the working directory.
+
+The next `sync` step will pull in the file, indicated by the message *"Applying overrides from local.xml!"*.

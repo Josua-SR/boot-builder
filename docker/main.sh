@@ -19,11 +19,15 @@ do_init() {
 
 	mkdir build
 	pushd build
-	repo init -u file:///work -b $(cat /work/.git/HEAD | cut -d' ' -f2)
+	repo init -u file:///manifest -b master $@
 	status=$?
 	popd
 
-	if [ $status -ne 0 ]; then rm -rf build; fi
+	if [ $status -ne 0 ];
+		then rm -rf build;
+	else
+		echo "Initialzied source tree with default manifest. Overrides may be supplied through a local.xml file in the working directory."
+	fi
 
 	return $status
 }
@@ -34,8 +38,17 @@ do_sync() {
 		return 1
 	fi
 
+	localxml=local.xml
+	if [ -e local.xml ]; then
+		echo "Applying overrides from local.xml!"
+		cp local.xml build/.repo/local_manifests/local.xml
+	else
+		echo "Using default versions. Overrides may be supplied through a local.xml file in the working directory."
+		rm -f build/.repo/local_manifests/local.xml
+	fi
+
 	pushd build
-	repo sync
+	repo sync $@
 	status=$?
 	popd
 
@@ -185,12 +198,6 @@ EOF
 git config --global user.name "SolidRun Docker Tools"
 git config --global user.email "no-reply@solid-run.com"
 
-# check working directory
-if [ ! -d .git ]; then
-	echo "Error: Current directory is not a git clone"
-	exit 1
-fi
-
 # check for command argument(s)
 if [ $# -lt 1 ]; then
 	echo "No command specified."
@@ -201,11 +208,11 @@ shift
 
 case $command in
 	init)
-		do_init
+		do_init $@
 		exit $?
 	;;
 	sync)
-		do_sync
+		do_sync $@
 		exit $?
 	;;
 	blobs)

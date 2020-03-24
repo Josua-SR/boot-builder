@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# Copyright 2018-2019 Josua Mayer <josua@solid-run.com>
+# Copyright 2018-2020 Josua Mayer <josua@solid-run.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 # 
@@ -20,9 +20,14 @@ DEFINE_integer 'gid' 100 'Group ID to run as' 'g'
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 
-# drop privileges
-groupadd -g ${FLAGS_gid} build 2>/dev/null || true
-useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
-sudo -u build /bin/bash /main.sh $@
+r=0
+if [ ${FLAGS_uid} -ne 0 ]; then
+	# drop privileges
+	groupadd -g ${FLAGS_gid} build 2>/dev/null || true
+	useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
+	sudo -u build /bin/bash /main.sh $@ || r=$?
+else
+	sudo -u root /bin/bash /main.sh $@ || r=$?
+fi
 
-exit 0
+exit $r
