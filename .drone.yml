@@ -1,0 +1,128 @@
+---
+kind: pipeline
+name: announce-start
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+steps:
+  - name: announce
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-partial-passed.png
+      template: >
+        Start building i.MX8MQ U-Boot Builder from {{repo.name}}/{{build.branch}} (#{{build.number}})
+
+---
+kind: pipeline
+name: linux-amd64
+
+clone:
+  depth: 1
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: imx8mq-uboot-builder
+  image: plugins/docker
+  settings:
+    context: docker
+    dockerfile: docker/Dockerfile
+    registry: container.solid-build.xyz
+    repo: container.solid-build.xyz/bsp/imx8mq-uboot-builder-amd64
+    cache_from: container.solid-build.xyz/bsp/imx8mq-uboot-builder-amd64
+    force_tag: true
+    tags:
+    - latest
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+
+---
+kind: pipeline
+name: linux-arm64
+
+clone:
+  depth: 1
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: imx8mq-uboot-builder
+  image: plugins/docker
+  settings:
+    context: docker
+    dockerfile: docker/Dockerfile
+    registry: container.solid-build.xyz
+    repo: container.solid-build.xyz/bsp/imx8mq-uboot-builder-arm64
+    cache_from: container.solid-build.xyz/bsp/imx8mq-uboot-builder-arm64
+    force_tag: true
+    tags:
+    - latest
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+
+---
+kind: pipeline
+name: manifest
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+depends_on:
+- linux-amd64
+- linux-arm64
+
+steps:
+  - name: imx8mq-uboot-builder
+    image: plugins/manifest
+    settings:
+      target: container.solid-build.xyz/bsp/imx8mq-uboot-builder
+      template: container.solid-build.xyz/bsp/imx8mq-uboot-builder-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+---
+kind: pipeline
+name: announce-end
+
+clone:
+  disable: true
+
+platform:
+  os: linux
+
+steps:
+  - name: announce
+    image: container.solid-build.xyz/drone/plugins/slack:latest
+    settings:
+      webhook:
+        from_secret: ryver_webhook
+      channel: drone
+      icon_url: https://img.icons8.com/office/80/000000/test-passed.png
+      template: >
+        Finished building i.MX8MQ U-Boot Builder from {{repo.name}}/{{build.branch}} (#{{build.number}})
+
+depends_on:
+- manifest
