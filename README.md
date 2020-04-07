@@ -27,6 +27,10 @@ Options:
 - -b,--boot:  Boot media to build for (default: 'microsd')
 
 Examples:
+- CuBox Pulse, microSD:
+
+      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d cbp -b microsd
+
 - Hummingboard Pulse, microSD:
 
       docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
