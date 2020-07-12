@@ -41,7 +41,7 @@ do_sync() {
 	localxml=local.xml
 	if [ -e local.xml ]; then
 		echo "Applying overrides from local.xml!"
-		cp local.xml build/.repo/local_manifests/local.xml
+		install -v -m644 -D local.xml build/.repo/local_manifests/local.xml
 	else
 		echo "Using default versions. Overrides may be supplied through a local.xml file in the working directory."
 		rm -f build/.repo/local_manifests/local.xml
