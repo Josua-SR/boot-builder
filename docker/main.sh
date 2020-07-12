@@ -175,14 +175,14 @@ EOF
 
 	# i.MX Image Builder
 	cp build/atf/build/imx8mm/release/bl31.bin build/imx-mkimage/iMX8M/
-	cp build/u-boot/arch/arm/dts/fsl-imx8mm-solidrun.dtb build/imx-mkimage/iMX8M/
+	cp build/u-boot/arch/arm/dts/imx8mm-hummingboard-pulse.dtb build/imx-mkimage/iMX8M/
 	cp build/u-boot/spl/u-boot-spl.bin build/imx-mkimage/iMX8M/
 	cp build/u-boot/tools/mkimage build/imx-mkimage/iMX8M/mkimage_uboot
 	cp build/u-boot/u-boot-nodtb.bin build/imx-mkimage/iMX8M/
 	cp blobs/* build/imx-mkimage/iMX8M/
 	pushd build/imx-mkimage
 	#sed "s/\(^dtbs = \).*/\1fsl-imx8mm-solidrun.dtb/;s/\(mkimage\)_uboot/\1_imx8/" soc.mak > Makefile
-	sed -i "s/\(^dtbs = \).*/\1fsl-imx8mm-solidrun.dtb/" iMX8M/soc.mak
+	sed -i "s/\(^dtbs = \).*/\1imx8mm-hummingboard-pulse.dtb/" iMX8M/soc.mak
 	make clean
 	make SOC=iMX8MM flash_evk
 	popd
