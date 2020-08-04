@@ -3,6 +3,6 @@
 	<remote name="codeaurora" fetch="https://source.codeaurora.org"/>
 	<remote name="github" fetch="https://github.com"/>
 
-	<project path="u-boot" revision="v2018.11-solidrun" name="SolidRun/u-boot.git" remote="github"/>
+	<project path="u-boot" revision="v2018.11-solidrun-1gb" name="SolidRun/u-boot.git" remote="github"/>
 	<project path="atf" revision="refs/tags/rel_imx_4.19.35_1.0.0" name="external/imx/imx-atf.git" remote="codeaurora"/>
 </manifest>
