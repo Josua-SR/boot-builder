@@ -170,9 +170,10 @@ do_build() {
 	esac
 	case ${FLAGS_device} in
 		cbp)
-			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "fsl-imx8mq-cubox-pulse" >> .config
+			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "imx8mq-cubox-pulse" >> .config
 			;;
 		hbp)
+			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "imx8mq-hummingboard-pulse" >> .config
 			;;
 		*)
 			echo "Unknown device specified. Valid options:"
