@@ -145,6 +145,21 @@ do_build() {
 
 	# check arguments
 	case ${FLAGS_device} in
+		imx8mm-hummingboard-pulse)
+			VARIANT=imx8mm
+			DEVICE=hummingboard-pulse
+
+			case ${FLAGS_boot} in
+				microsd)
+					BOOT=microsd
+					;;
+				*)
+					echo "Unknown boot media specified. Valid options:"
+					echo "microsd (microSD - at 512 byte offset)"
+					return 1
+					;;
+			esac
+			;;
 		imx8mp-cubox-pulse)
 			VARIANT=imx8mp
 			DEVICE=cubox-pulse
@@ -207,6 +222,7 @@ do_build() {
 			;;
 		*)
 			echo "Unknown device specified. Valid options:"
+			echo "- imx8mm-hummingboard-pulse"
 			echo "- imx8mp-cubox-pulse (CuBox-M)"
 			echo "- imx8mp-hummingboard-pulse"
 			echo "- imx8mq-cubox-pulse"
@@ -217,6 +233,63 @@ do_build() {
 
 	do_build_${VARIANT} $DEVICE $BOOT
 	return $?
+}
+
+do_build_imx8mm() {
+	DEVICE=$1
+	BOOT=$2
+	export BINDIR="$PWD/blobs"
+
+	export CROSS_COMPILE=aarch64-linux-gnu-
+
+	# ATF
+	make -C build/atf_imx8mm \
+		PLAT=imx8mm \
+		bl31 \
+		|| return 1
+
+	export BL31="$PWD/build/atf_imx8mm/build/imx8mm/release/bl31.bin"
+
+	# U-Boot
+	pushd build/u-boot_imx8mm
+
+	# configure
+	cp configs/imx8mm_solidrun_defconfig .config
+	case ${DEVICE} in
+		hummingboard-pulse)
+			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "imx8mm-hummingboard-pulse" >> .config
+			;;
+		*)
+			echo "internal error :@"
+			return 1
+			;;
+	esac
+	cat >> .config << EOF
+CONFIG_CMD_BOOTMENU=y
+CONFIG_CMD_SETEXPR=y
+EOF
+	make olddefconfig || return 1
+
+	# build
+	make -j4 || return 1
+	popd
+
+	# i.MX Image Builder
+	cp $BL31 build/mkimage_imx8mm/iMX8M/
+	cp build/u-boot_imx8mm/arch/arm/dts/imx8mm-hummingboard-pulse.dtb build/mkimage_imx8mm/iMX8M/
+	cp build/u-boot_imx8mm/spl/u-boot-spl.bin build/mkimage_imx8mm/iMX8M/
+	cp build/u-boot_imx8mm/tools/mkimage build/mkimage_imx8mm/iMX8M/mkimage_uboot
+	cp build/u-boot_imx8mm/u-boot-nodtb.bin build/mkimage_imx8mm/iMX8M/
+	cp blobs/* build/mkimage_imx8mm/iMX8M/
+	pushd build/mkimage_imx8mm
+	sed -i "s/\(^dtbs = \).*/\1imx8mm-hummingboard-pulse.dtb/" iMX8M/soc.mak
+	make clean
+	make SOC=iMX8MM flash_evk
+	popd
+
+	cp -v build/mkimage_imx8mm/iMX8M/flash.bin u-boot-imx8mm-${DEVICE}-${BOOT}.bin
+
+	return 0
 }
 
 do_build_imx8mp() {
