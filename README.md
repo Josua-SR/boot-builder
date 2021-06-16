@@ -23,17 +23,17 @@ From our container registry:
     docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build <options>
 
 Options:
-- -d,--device:  Device to build for (default: 'mcbin')
-- -b,--boot:  Boot media to build for (default: 'microsd')
+- -d,--device:  Device to build for
+- -b,--boot:  Boot media to build for
 
 Examples:
 - CuBox Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d cbp -b microsd
+      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-cubox-pulse -b microsd
 
 - Hummingboard Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d hbp -b microsd
+      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-hummingboard-pulse -b microsd
 
 ### Customize where source code is pulled from
 

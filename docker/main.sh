@@ -127,7 +127,7 @@ do_build() {
 		echo "Error: not initialized, run init first!"
 		return 1
 	fi
-	if [ ! -d build/u-boot ] || [ ! -d build/atf ]; then
+	if [ ! -d build/u-boot_imx8mq ] || [ ! -d build/atf_imx8mq ]; then
 		echo "Error: Sources not complete, run sync first!"
 		return 1
 	fi
@@ -135,7 +135,6 @@ do_build() {
 		echo "Error: Binary blobs missing, run blobs first!"
 		return 1
 	fi
-	export BINDIR="$PWD/blobs"
 
 	# flags
 	. /shflags
@@ -144,41 +143,79 @@ do_build() {
 	FLAGS "$@" || exit 1
 	eval set -- "${FLAGS_ARGV}"
 
+	# check arguments
+	case ${FLAGS_device} in
+		imx8mq-cubox-pulse)
+			VARIANT=imx8mq
+			DEVICE=cubox-pulse
+
+			case ${FLAGS_boot} in
+				microsd)
+					BOOT=microsd
+					;;
+				*)
+					echo "Unknown boot media specified. Valid options:"
+					echo "microsd (microSD - at 512 byte offset)"
+					return 1
+					;;
+			esac
+			;;
+		imx8mq-hummingboard-pulse)
+			VARIANT=imx8mq
+			DEVICE=hummingboard-pulse
+
+			case ${FLAGS_boot} in
+				microsd)
+					BOOT=microsd
+					;;
+				*)
+					echo "Unknown boot media specified. Valid options:"
+					echo "microsd (microSD - at 512 byte offset)"
+					return 1
+					;;
+			esac
+			;;
+		*)
+			echo "Unknown device specified. Valid options:"
+			echo "- imx8mq-cubox-pulse (CuBox Pulse)"
+			echo "- imx8mq-hummingboard-pulse (Hummingboard Pulse)"
+			return 1
+			;;
+	esac
+
+	do_build_${VARIANT} $DEVICE $BOOT
+	return $?
+}
+
+do_build_imx8mq() {
+	DEVICE=$1
+	BOOT=$2
+	export BINDIR="$PWD/blobs"
+
 	export CROSS_COMPILE=aarch64-linux-gnu-
 
 	# ATF
-	make -C build/atf \
+	make -C build/atf_imx8mq \
 		PLAT=imx8mq \
 		bl31 \
 		|| return 1
 
-	export BL31="$PWD/build/atf/build/imx8mq/release/bl31.bin"
+	export BL31="$PWD/build/atf_imx8mq/build/imx8mq/release/bl31.bin"
 
 	# U-Boot
-	pushd build/u-boot
+	pushd build/u-boot_imx8mq
 
 	# configure
 	cp configs/imx8mq_hb_defconfig .config
-	case ${FLAGS_boot} in
-		microsd)
-			;;
-		*)
-			echo "Unknown boot media specified. Valid options:"
-			echo "microsd (microSD - at 512 byte offset)"
-			return 1
-			;;
-	esac
-	case ${FLAGS_device} in
-		cbp)
+	case ${DEVICE} in
+		cubox-pulse)
 			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "imx8mq-cubox-pulse" >> .config
 			;;
-		hbp)
+		hummingboard-pulse)
 			printf "CONFIG_DEFAULT_FDT_FILE=\"%s\"\n" "imx8mq-hummingboard-pulse" >> .config
 			;;
 		*)
-			echo "Unknown device specified. Valid options:"
-			echo "- cbp (CuBox Pulse)"
-			echo "- hbp (Hummingboard Pulse)"
+			echo "internal error :@"
 			return 1
 			;;
 	esac
@@ -192,7 +229,7 @@ EOF
 	make flash.bin -j4 || return 1
 	popd
 
-	cp -v build/u-boot/flash.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
+	cp -v build/u-boot_imx8mq/flash.bin u-boot-imx8mq-${DEVICE}-${BOOT}.bin
 
 	return 0
 }
