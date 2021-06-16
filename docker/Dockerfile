@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:buster
 
 # configure apt
 ADD sources.list /etc/apt/sources.list
