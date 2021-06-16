@@ -19,7 +19,7 @@ do_init() {
 
 	mkdir build
 	pushd build
-	repo init -u file:///manifest -b master $@
+	repo init -u https://github.com/Josua-SR/boot-builder.git -b imx8-uboot -m manifest.xml $@
 	status=$?
 	popd
 

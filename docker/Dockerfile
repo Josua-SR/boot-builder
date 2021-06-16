@@ -26,12 +26,6 @@ RUN set -e; \
 RUN apt-get -y install bc bison flex git libssl-dev sudo wget
 RUN apt-get -y -t buster-backports install repo
 
-# create git repository with default.xml
-WORKDIR /manifest
-RUN set -e; git init .; git config --local user.name "SolidRun Ltd."; git config --local user.email "support@solid-run.com"; :
-ADD default.xml /manifest/
-RUN set -e; git add default.xml; git commit -m 'Initial Commit'; :
-
 # configure entrypoint
 ADD shflags /shflags
 ADD entry.sh /entry.sh
