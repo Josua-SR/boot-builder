@@ -23,7 +23,8 @@ RUN set -e; \
 	:
 
 # install tools
-RUN apt-get -y install bc bison device-tree-compiler flex libssl-dev repo sudo wget zlib1g-dev
+RUN apt-get -y install bc bison device-tree-compiler flex libssl-dev sudo wget zlib1g-dev
+RUN apt-get -y -t buster-backports install repo
 
 # configure entrypoint
 ADD shflags /shflags
