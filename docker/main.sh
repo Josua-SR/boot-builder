@@ -63,9 +63,9 @@ do_blobs() {
 	fi
 
 	# declare version / chksum
-	file=firmware-imx-8.8.bin
-	dir=firmware-imx-8.8
-	sha256sum=5ca1f8b6e6b191594d17ac7b51c38cdbc2ff808d15568ab4b0bbeb5dc6c621f6
+	file=firmware-imx-8.10.bin
+	dir=firmware-imx-8.10
+	sha256sum=2b70f169d4065b2a7ac7a676afe24636128bd2dacc9f5230346758c3b146b2be
 
 	# flags
 	. /shflags
