@@ -1,26 +1,26 @@
-## i.MX8M Q U-Boot Builder
+## i.MX8M U-Boot Builder
 
 ## Description
-This software uses docker to create a consistent build environment for compiling U-Boot images from source code for i.MX8M Q based devices.
+This software uses docker to create a consistent build environment for compiling U-Boot images from source code for i.MX8M based devices.
 
 ## Install
 From a clone of **this** repository:
 
-    docker build -t imx8mqubbldr docker
+    docker build -t imx8mubbldr docker
 
 From our container registry:
 
-    docker pull container.solid-build.xyz/bsp/imx8mq-uboot-builder
-    docker tag container.solid-build.xyz/bsp/imx8mq-uboot-builder imx8mqubbldr
+    docker pull container.solid-build.xyz/bsp/imx8m-uboot-builder
+    docker tag container.solid-build.xyz/bsp/imx8m-uboot-builder imx8mubbldr
 
 ## Usage
 ### Fetch sources
-    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- init
-    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- sync
-    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- blobs
+    docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- init
+    docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- sync
+    docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- blobs
 
 ### Build U-Boot
-    docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build <options>
+    docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- build <options>
 
 Options:
 - -d,--device:  Device to build for
@@ -29,11 +29,11 @@ Options:
 Examples:
 - CuBox Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-cubox-pulse -b microsd
+      docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-cubox-pulse -b microsd
 
 - Hummingboard Pulse, microSD:
 
-      docker run -v "$PWD:/work" imx8mqubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-hummingboard-pulse -b microsd
+      docker run -v "$PWD:/work" imx8mubbldr -u $(id -u) -g $(id -g) -- build -d imx8mq-hummingboard-pulse -b microsd
 
 ### Customize where source code is pulled from
 

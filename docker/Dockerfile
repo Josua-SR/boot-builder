@@ -23,7 +23,7 @@ RUN set -e; \
 	:
 
 # install tools
-RUN apt-get -y install bc bison flex git libssl-dev sudo wget
+RUN apt-get -y install bc bison device-tree-compiler flex git libssl-dev sudo wget zlib1g-dev
 RUN apt-get -y -t buster-backports install repo
 
 # configure entrypoint
