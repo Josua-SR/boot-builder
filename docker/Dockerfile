@@ -23,7 +23,8 @@ RUN set -e; \
 	:
 
 # install tools
-RUN apt-get -y install bc bison flex git libssl-dev repo sudo wget
+RUN apt-get -y install bc bison flex git libssl-dev sudo wget
+RUN apt-get -y -t buster-backports install repo
 
 # create git repository with default.xml
 WORKDIR /manifest
