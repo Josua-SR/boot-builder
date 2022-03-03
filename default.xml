@@ -4,8 +4,8 @@
 	<remote name="github" fetch="https://github.com"/>
 	<remote name="github-marvell" fetch="https://github.com/MarvellEmbeddedProcessors"/>
 
-	<project path="u-boot" revision="master-80x0" name="Josua-SR/u-boot.git" remote="github"/>
-	<project path="atf" revision="atf-v1.5-armada-18.12" name="atf-marvell.git" remote="github-marvell"/>
-	<project path="binaries" revision="binaries-marvell-armada-18.12" name="binaries-marvell.git" remote="github-marvell"/>
-	<project path="mv_ddr" revision="mv_ddr-armada-18.12" name="mv-ddr-marvell.git" remote="github-marvell"/>
+	<project path="u-boot" revision="develop-cn913x" name="Josua-SR/u-boot.git" remote="github"/>
+	<project path="atf" revision="develop-cn913x" name="Josua-SR/arm-trusted-firmware.git" remote="github"/>
+	<project path="binaries" revision="binaries-marvell-armada-SDK10.0.1.0" name="binaries-marvell.git" remote="github-marvell"/>
+	<project path="mv_ddr" revision="develop-cn913x" name="Josua-SR/mv-ddr-marvell.git" remote="github"/>
 </manifest>

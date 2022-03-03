@@ -54,7 +54,7 @@ do_build() {
 
 	# flags
 	. /shflags
-	DEFINE_string 'device' mcbin 'Device to build for' 'd'
+	DEFINE_string 'device' cfbase-9130 'Device to build for' 'd'
 	DEFINE_string 'boot' microsd 'Boot media to build for' 'b'
 	FLAGS "$@" || exit 1
 	eval set -- "${FLAGS_ARGV}"
@@ -65,7 +65,7 @@ do_build() {
 	pushd build/u-boot
 
 	# configure
-	cp configs/mvebu_mcbin-88f8040_defconfig .config
+	cp configs/sr_cn913x_cex7_defconfig .config
 	case ${FLAGS_boot} in
 		emmc_boot0)
 			cat >> .config << EOF
@@ -103,6 +103,9 @@ EOF
 			cat >> .config << EOF
 CONFIG_ENV_IS_IN_MMC=n
 CONFIG_ENV_IS_IN_SPI_FLASH=y
+CONFIG_ENV_SIZE=0x10000
+CONFIG_ENV_OFFSET=0x3f0000
+CONFIG_ENV_SECT_SIZE=0x10000
 EOF
 			;;
 		*)
@@ -116,23 +119,38 @@ EOF
 			;;
 	esac
 	case ${FLAGS_device} in
-		mcbin)
+		cex7-9130)
+			CP_NUM=1
+			echo "CONFIG_DEFAULT_DEVICE_TREE=\"cn9130-cex7-A\"" >> .config
 			;;
-		cfgt)
-			echo "CONFIG_DEFAULT_DEVICE_TREE=\"armada-8040-clearfog-gt-8k\"" >> .config
+		cex7-9131)
+			CP_NUM=2
+			echo "CONFIG_DEFAULT_DEVICE_TREE=\"cn9131-cex7-A\"" >> .config
+			;;
+		cex7-9132)
+			CP_NUM=3
+			echo "CONFIG_DEFAULT_DEVICE_TREE=\"cn9132-cex7-A\"" >> .config
+			;;
+		cfbase-9130)
+			CP_NUM=1
+			echo "CONFIG_DEFAULT_DEVICE_TREE=\"cn9130-cf-base\"" >> .config
+			;;
+		cfpro-9130)
+			CP_NUM=1
+			echo "CONFIG_DEFAULT_DEVICE_TREE=\"cn9130-cf-pro\"" >> .config
 			;;
 		*)
 			echo "Unknown device specified. Valid options:"
-			echo "- mcbin (MacchiatoBIN)"
-			echo "- cfgt (Clearfog GT 8k)"
+			echo "- cex7-9130 (COM-EXPRESS Module with CN9130)"
+			echo "- cex7-9131 (COM-EXPRESS Module with CN9131)"
+			echo "- cex7-9132 (COM-EXPRESS Module with CN9132)"
+			echo "- cfbase-9130 (Clearfog Base with CN9130)"
+			echo "- cfpro-9130 (Clearfog Pro with CN9130)"
 			return 1
 			;;
 	esac
-	cat >> .config << EOF
-CONFIG_CMD_BOOTMENU=y
-CONFIG_CMD_SETEXPR=y
-EOF
 	make olddefconfig || return 1
+	make savedefconfig || return 1
 
 	# build
 	make -j4 all || return 1
@@ -140,14 +158,17 @@ EOF
 
 	# ATF
 	make -C build/atf \
-		PLAT=a80x0_mcbin \
+		PLAT=t9130 \
 		MV_DDR_PATH=$PWD/build/mv_ddr \
 		SCP_BL2=$PWD/build/binaries/mrvl_scp_bl2.img \
 		BL33=$PWD/build/u-boot/u-boot.bin \
-		all fip \
+		USE_COHERENT_MEM=0 \
+		LOG_LEVEL=20 \
+		CP_NUM=$CP_NUM \
+		all fip mrvl_flash \
 		|| return 1
 
-	cp -v build/atf/build/a80x0_mcbin/release/flash-image.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
+	cp -v build/atf/build/t9130/release/flash-image.bin u-boot-${FLAGS_device}-${FLAGS_boot}.bin
 
 	return 0
 }

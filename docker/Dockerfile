@@ -1,7 +1,10 @@
-FROM debian:stretch
+FROM debian:bullseye
 
 # configure apt
 ADD sources.list /etc/apt/sources.list
+
+# optional apt-cacher-ng instance to cache package downloads
+# RUN echo 'Acquire::http { Proxy "http://example.com:3142"; }' | tee -a /etc/apt/apt.conf.d/proxy
 
 # update
 RUN set -e; \
@@ -23,7 +26,7 @@ RUN set -e; \
 	:
 
 # install tools
-RUN apt-get -y install bc bison flex libssl-dev repo sudo
+RUN apt-get -y install bc bison flex libssl-dev libtinfo-dev repo sudo
 
 # configure entrypoint
 ADD shflags /shflags
