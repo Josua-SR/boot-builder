@@ -336,13 +336,12 @@ EOF
 
 	# i.MX Image Builder
 	cp $BL31 build/mkimage_imx8mp/iMX8M/
-	cp build/u-boot_imx8mp/arch/arm/dts/imx8mp-solidrun.dtb build/mkimage_imx8mp/iMX8M/
+	cp build/u-boot_imx8mp/arch/arm/dts/imx8mp-solidrun.dtb build/mkimage_imx8mp/iMX8M/imx8mp-evk.dtb
 	cp build/u-boot_imx8mp/spl/u-boot-spl.bin build/mkimage_imx8mp/iMX8M/
 	cp build/u-boot_imx8mp/tools/mkimage build/mkimage_imx8mp/iMX8M/mkimage_uboot
 	cp build/u-boot_imx8mp/u-boot-nodtb.bin build/mkimage_imx8mp/iMX8M/
 	cp blobs/* build/mkimage_imx8mp/iMX8M/
 	pushd build/mkimage_imx8mp
-	sed -i "s/\(^dtbs = \).*/\1imx8mp-solidrun.dtb/" iMX8M/soc.mak
 	make clean
 	make SOC=iMX8MP flash_evk
 	popd

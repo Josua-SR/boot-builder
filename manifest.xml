@@ -7,7 +7,7 @@
 	<project path="atf_imx8mm" revision="refs/tags/rel_imx_5.4.47_2.2.0" name="external/imx/imx-atf.git" remote="codeaurora"/>
 	<project path="mkimage_imx8mm" revision="refs/tags/rel_imx_4.19.35_1.0.0" name="external/imx/imx-mkimage.git" remote="codeaurora"/>
 
-	<project path="u-boot_imx8mp" revision="v2020.04+nxp5.4.70_2.3.0+sr" name="SolidRun/u-boot.git" remote="github"/>
+	<project path="u-boot_imx8mp" revision="v2020.04+nxp5.4.70_2.3.0+sr+josua" name="Josua-SR/u-boot.git" remote="github"/>
 	<project path="atf_imx8mp" revision="refs/tags/rel_imx_5.4.70_2.3.0" name="external/imx/imx-atf.git" remote="codeaurora"/>
 	<project path="mkimage_imx8mp" revision="refs/tags/rel_imx_5.4.70_2.3.0" name="external/imx/imx-mkimage.git" remote="codeaurora"/>
 

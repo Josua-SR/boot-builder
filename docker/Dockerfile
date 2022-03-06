@@ -3,6 +3,10 @@ FROM debian:buster
 # configure apt
 ADD sources.list /etc/apt/sources.list
 
+# apt proxy (optional)
+ARG APTPROXY=
+RUN test -n "$APTPROXY" && printf 'Acquire::http { Proxy "%s"; }\n' $APTPROXY | tee -a /etc/apt/apt.conf.d/proxy || true
+
 # update
 RUN set -e; \
 	apt-get update; \
