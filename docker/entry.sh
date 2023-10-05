@@ -20,9 +20,17 @@ DEFINE_integer 'gid' 100 'Group ID to run as' 'g'
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 
-# drop privileges
+# create build user group
+USER=root
+if [ ${FLAGS_uid} -ne 0 ]; then
+	USER=build
+	useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m $USER
+fi
+
+# create build user
 groupadd -g ${FLAGS_gid} build 2>/dev/null || true
-useradd -s /bin/bash -u ${FLAGS_uid} -g ${FLAGS_gid} -m build
-sudo -u build /bin/bash /main.sh $@
+
+# drop privileges
+sudo -u $USER /bin/bash /main.sh $@
 
 exit 0
