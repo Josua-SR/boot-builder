@@ -19,7 +19,7 @@ do_init() {
 
 	mkdir build
 	pushd build
-	repo init -u file:///work -b $(cat /work/.git/HEAD | cut -d' ' -f2)
+	repo init --repo-branch=repo-1 -u file:///work -b $(cat /work/.git/HEAD | cut -d' ' -f2)
 	status=$?
 	popd
 
