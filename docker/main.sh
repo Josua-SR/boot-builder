@@ -129,6 +129,7 @@ EOF
 			;;
 	esac
 	cat >> .config << EOF
+CONFIG_DEFAULT_DEVICE_TREE="armada-8040-mcbin"
 CONFIG_CMD_BOOTMENU=y
 CONFIG_CMD_SETEXPR=y
 EOF
